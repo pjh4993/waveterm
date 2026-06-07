@@ -39,6 +39,7 @@ import { isMacOS, isWindows } from "@/util/platformutil";
 import { boundNumber, fireAndForget, stringToBase64 } from "@/util/util";
 import * as jotai from "jotai";
 import * as React from "react";
+import { normalizeCmd } from "./osc-handlers";
 import { getBlockingCommand } from "./shellblocking";
 import { computeTheme, DefaultTermTheme, isLikelyOnSameHost, trimTerminalSelection } from "./termutil";
 import { TermWrap, WebGLSupported } from "./termwrap";
@@ -195,6 +196,16 @@ export class TermViewModel implements ViewModel {
                             });
                         }
                     }
+                }
+            }
+            if (!isCmd) {
+                const dynamicTitle = this.getDynamicTitleText(get);
+                if (dynamicTitle) {
+                    rtn.push({
+                        elemtype: "text",
+                        text: dynamicTitle,
+                        noGrow: true,
+                    });
                 }
             }
             const isMI = get(this.tabModel.isTermMultiInput);
@@ -397,6 +408,31 @@ export class TermViewModel implements ViewModel {
                 this.termRef.current.setCursorBlink(globalStore.get(termCursorBlinkAtom) ?? false);
             }
         });
+    }
+
+    getDynamicTitleText(get: jotai.Getter): string {
+        const enabled = get(getOverrideConfigAtom(this.blockId, "term:dynamictitle")) ?? true;
+        if (!enabled) {
+            return null;
+        }
+        if (!this.termRef.current?.shellIntegrationStatusAtom) {
+            return null;
+        }
+        if (get(this.termRef.current.claudeCodeActiveAtom)) {
+            return "Claude Code";
+        }
+        if (get(this.termRef.current.shellIntegrationStatusAtom) !== "running-command") {
+            return null;
+        }
+        const lastCommand = get(this.termRef.current.lastCommandAtom);
+        if (!lastCommand) {
+            return null;
+        }
+        const program = normalizeCmd(lastCommand).split(/\s+/)[0];
+        if (!program) {
+            return null;
+        }
+        return program.split("/").pop();
     }
 
     getShellIntegrationIconButton(get: jotai.Getter): IconButtonDecl | null {

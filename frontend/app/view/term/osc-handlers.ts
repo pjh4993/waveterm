@@ -45,7 +45,7 @@ type Osc16162Command =
     | { command: "I"; data: { inputempty?: boolean } }
     | { command: "R"; data: Record<string, never> };
 
-function normalizeCmd(decodedCmd: string): string {
+export function normalizeCmd(decodedCmd: string): string {
     let normalizedCmd = decodedCmd.trim();
     normalizedCmd = normalizedCmd.replace(/^env\s+/, "");
     normalizedCmd = normalizedCmd.replace(/^(?:\w+=(?:"[^"]*"|'[^']*'|\S+)\s+)*/, "");

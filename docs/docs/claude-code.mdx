@@ -106,6 +106,90 @@ When Claude Code uses the `AskUserQuestion` tool, it's paused and waiting for yo
 
 `PreToolUse` hooks can match any tool by name, so you can add badges for other tools as well — for example, to get a signal whenever Claude runs a shell command (`Bash`) or edits a file (`Edit`). Any tool name Claude Code supports can be used as a matcher.
 
+## Showing the session name as the panel title <VersionBadge version="v0.15" />
+
+Badges tell you *something happened* in a tab. A panel title tells you *what that tab is* — which is especially useful when you keep several Claude Code sessions open at once. Wave can show the running process in each terminal block's header automatically (`vim`, `npm`, `Claude Code`, …); this is on by default and controlled by the [`term:dynamictitle`](/config) setting. For Claude Code, you can go one step further and surface the actual *session name* instead of the generic "Claude Code" label.
+
+Wave detects that Claude Code is running, but it has no way to know your session's name on its own — so a hook supplies it. The hook derives a short title and writes it to the block's `frame:text`, which overrides the automatic label. On session end it clears `frame:text`, so the title reverts to the default.
+
+### 1. Add the helper script
+
+Save this as `~/.config/waveterm/wave-claude-title.sh` and make it executable (`chmod +x`). It needs [`jq`](https://jqlang.github.io/jq/).
+
+```bash
+#!/usr/bin/env bash
+# Set the Wave terminal panel title to the Claude Code session name.
+# Reads the Claude Code hook JSON on stdin.
+set -euo pipefail
+
+payload=$(cat)
+
+# Prefer an explicit session title (set after /resume or `claude -n <name>`).
+title=$(printf '%s' "$payload" | jq -r '.session_title // empty')
+
+# Otherwise fall back to the first user message in the transcript.
+if [ -z "$title" ]; then
+    transcript=$(printf '%s' "$payload" | jq -r '.transcript_path // empty')
+    if [ -n "$transcript" ] && [ -f "$transcript" ]; then
+        title=$(jq -r 'select(.type=="user") | (.message.content // .content)
+            | if type=="array" then (.[0].text // "") else . end' "$transcript" 2>/dev/null \
+            | grep -v '^[[:space:]]*$' | head -n1 | cut -c1-60)
+    fi
+fi
+
+# Last resort: the working-directory name.
+if [ -z "$title" ]; then
+    cwd=$(printf '%s' "$payload" | jq -r '.cwd // empty')
+    title=$(basename "${cwd:-claude}")
+fi
+
+wsh setmeta -b this "frame:text=✳ ${title}"
+```
+
+### 2. Wire up the hooks
+
+Add these to `~/.claude/settings.json` (merge into your existing `hooks` block — they sit alongside the badge hooks above):
+
+```json
+{
+  "hooks": {
+    "SessionStart": [
+      {
+        "matcher": "*",
+        "hooks": [
+          { "type": "command", "command": "~/.config/waveterm/wave-claude-title.sh" }
+        ]
+      }
+    ],
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          { "type": "command", "command": "~/.config/waveterm/wave-claude-title.sh" }
+        ]
+      }
+    ],
+    "SessionEnd": [
+      {
+        "matcher": "*",
+        "hooks": [
+          { "type": "command", "command": "wsh setmeta -b this frame:text=" }
+        ]
+      }
+    ]
+  }
+}
+```
+
+`SessionStart` sets the title when the session begins or resumes, `UserPromptSubmit` keeps it fresh as the conversation evolves, and `SessionEnd` clears it (`frame:text=` with an empty value deletes the key, reverting to the default title).
+
+:::info
+`wsh setmeta -b this` targets the terminal block that the hook is running inside. The title is stored on the block (`frame:text`), so it survives tab switches and works across splits. If you ever want to pin a manual title that the automatic label won't override, set it yourself: `wsh setmeta -b this frame:text="My Title"`.
+:::
+
+:::warning
+`frame:text` is persistent block metadata. The `SessionEnd` hook clears it on a normal exit, but if Claude Code is killed abruptly the last title can linger until the next command sets or clears it.
+:::
+
 ## Choosing your own icons and colors
 
 Icon names are [Font Awesome](https://fontawesome.com/icons) icon names without the `fa-` prefix. Colors are any valid CSS color — hex values, named colors, or anything else CSS accepts.
