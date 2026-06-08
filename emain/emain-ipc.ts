@@ -313,6 +313,17 @@ export function initIpcHandlers() {
                 if (input.type != "keyDown") {
                     return;
                 }
+                // If a chord is armed (the prefix already fired), the next key is the
+                // chord's second key and must be captured even when it's a bare letter
+                // like "j" — otherwise it would be typed into the web view. Mirrors the
+                // main tab-view before-input handler.
+                const parentTabView = getWaveTabViewByWebContentsId(parentWc.id);
+                if (parentTabView?.keyboardChordMode) {
+                    e.preventDefault();
+                    parentTabView.setKeyboardChordMode(false);
+                    parentWc.send("reinject-key", waveEvent);
+                    return;
+                }
                 for (let keyDesc of webviewKeys) {
                     if (keyutil.checkKeyPressed(waveEvent, keyDesc)) {
                         e.preventDefault();
