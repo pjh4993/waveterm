@@ -5,7 +5,7 @@ import { getApi } from "@/app/store/global";
 import { cn } from "@/util/util";
 import { memo, useRef } from "react";
 import { AIProviderDropdown } from "./aiproviderdropdown";
-import { AIWebProvider } from "./aiwebproviders";
+import { AIWebProvider, USER_AGENT_DESKTOP } from "./aiwebproviders";
 
 const AIWebviewHeader = memo(
     ({ provider, onReload, onHome }: { provider: AIWebProvider; onReload: () => void; onHome: () => void }) => {
@@ -80,6 +80,7 @@ const AIWebviewPanelInner = memo(({ roundTopLeft, provider }: { roundTopLeft: bo
                 src={provider.url}
                 preload={preload}
                 partition={provider.partition}
+                useragent={provider.useragent ?? USER_AGENT_DESKTOP}
                 // @ts-expect-error Chromium webviewTag expects a string here, React types expect a boolean
                 allowpopups="true"
             />

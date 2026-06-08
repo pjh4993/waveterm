@@ -5,14 +5,27 @@ import { getSettingsKeyAtom } from "@/app/store/global";
 import { RpcApi } from "@/app/store/wshclientapi";
 import { TabRpcClient } from "@/app/store/wshrpcutil";
 import { cn, fireAndForget } from "@/util/util";
+import { autoUpdate, FloatingPortal, offset, useDismiss, useFloating, useInteractions } from "@floating-ui/react";
 import { useAtomValue } from "jotai";
-import { memo, useRef, useState } from "react";
+import { memo, useState } from "react";
 import { AIPanelProviderOptions } from "./aiwebproviders";
 
+// The menu must render in a FloatingPortal (at the document root): when a web provider
+// is active the panel hosts a native <webview> that paints above in-flow DOM, so an
+// inline absolutely-positioned menu would open behind it and be unclickable.
 export const AIProviderDropdown = memo(() => {
     const provider = useAtomValue(getSettingsKeyAtom("aipanel:provider")) ?? "wave";
     const [isOpen, setIsOpen] = useState(false);
-    const dropdownRef = useRef<HTMLDivElement>(null);
+
+    const { refs, floatingStyles, context } = useFloating({
+        placement: "bottom-start",
+        open: isOpen,
+        onOpenChange: setIsOpen,
+        middleware: [offset(4)],
+        whileElementsMounted: autoUpdate,
+    });
+    const dismiss = useDismiss(context);
+    const { getReferenceProps, getFloatingProps } = useInteractions([dismiss]);
 
     const current = AIPanelProviderOptions.find((p) => p.key === provider) ?? AIPanelProviderOptions[0];
 
@@ -23,8 +36,10 @@ export const AIProviderDropdown = memo(() => {
     };
 
     return (
-        <div className="relative" ref={dropdownRef}>
+        <>
             <button
+                ref={refs.setReference}
+                {...getReferenceProps()}
                 onClick={() => setIsOpen(!isOpen)}
                 className={cn(
                     "group flex items-center gap-2 px-2 py-1 text-sm font-semibold text-white rounded transition-colors cursor-pointer",
@@ -38,9 +53,13 @@ export const AIProviderDropdown = memo(() => {
             </button>
 
             {isOpen && (
-                <>
-                    <div className="fixed inset-0 z-40" onClick={() => setIsOpen(false)} />
-                    <div className="absolute top-full left-0 mt-1 bg-zinc-800 border border-zinc-600 rounded shadow-lg z-50 min-w-[200px] py-1">
+                <FloatingPortal>
+                    <div
+                        ref={refs.setFloating}
+                        style={floatingStyles}
+                        {...getFloatingProps()}
+                        className="bg-zinc-800 border border-zinc-600 rounded shadow-lg z-50 min-w-[200px] py-1"
+                    >
                         {AIPanelProviderOptions.map((opt) => {
                             const isSelected = opt.key === provider;
                             return (
@@ -56,9 +75,9 @@ export const AIProviderDropdown = memo(() => {
                             );
                         })}
                     </div>
-                </>
+                </FloatingPortal>
             )}
-        </div>
+        </>
     );
 });
 
