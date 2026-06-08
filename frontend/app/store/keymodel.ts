@@ -423,7 +423,11 @@ function appHandleKeyDown(waveEvent: WaveKeyboardEvent): boolean {
     }
     lastHandledEvent = nativeEvent;
     if (activeChord) {
-        console.log("handle activeChord", activeChord);
+        // A bare modifier keydown (e.g. pressing Shift to type a shifted second key
+        // like "%") must not cancel the chord — wait for the actual second key.
+        if (waveEvent.key == "Shift" || waveEvent.key == "Control" || waveEvent.key == "Alt" || waveEvent.key == "Meta") {
+            return true;
+        }
         // If we're in chord mode, look for the second key.
         const chordBindings = globalChordMap.get(activeChord);
         const [, handler] = checkKeyMap(waveEvent, chordBindings);
@@ -588,6 +592,38 @@ function getGlobalActions(): KeyBindingAction[] {
             defaultBinding: "Shift:Cmd:d",
             handler: () => {
                 handleSplitVertical("after");
+                return true;
+            },
+        },
+        {
+            id: "app:splitblockup",
+            defaultBinding: "Ctrl:Shift:s ArrowUp",
+            handler: () => {
+                handleSplitVertical("before");
+                return true;
+            },
+        },
+        {
+            id: "app:splitblockdown",
+            defaultBinding: "Ctrl:Shift:s ArrowDown",
+            handler: () => {
+                handleSplitVertical("after");
+                return true;
+            },
+        },
+        {
+            id: "app:splitblockleft",
+            defaultBinding: "Ctrl:Shift:s ArrowLeft",
+            handler: () => {
+                handleSplitHorizontal("before");
+                return true;
+            },
+        },
+        {
+            id: "app:splitblockright",
+            defaultBinding: "Ctrl:Shift:s ArrowRight",
+            handler: () => {
+                handleSplitHorizontal("after");
                 return true;
             },
         },
@@ -780,6 +816,36 @@ function getKeybindingOverrides(): Record<string, unknown> {
     return fullConfig?.keybindings ?? {};
 }
 
+// A binding is either a single key combo ("Cmd:n") or a tmux-style prefix chord
+// where the prefix and second key are separated by a space ("Ctrl:b c"). Prefix
+// chords register into globalChordMap keyed by the prefix; multiple actions may
+// share a prefix, each under a different second key.
+function registerBinding(binding: string, handler: KeyHandler, actionId: string) {
+    const trimmed = binding.trim();
+    const spaceIdx = trimmed.indexOf(" ");
+    if (spaceIdx < 0) {
+        if (globalKeyMap.has(trimmed)) {
+            console.warn(`keybinding conflict: "${trimmed}" bound to multiple actions (last wins: ${actionId})`);
+        }
+        globalKeyMap.set(trimmed, handler);
+        return;
+    }
+    const prefix = trimmed.slice(0, spaceIdx).trim();
+    const second = trimmed.slice(spaceIdx + 1).trim();
+    if (prefix === "" || second === "") {
+        return;
+    }
+    let secondMap = globalChordMap.get(prefix);
+    if (secondMap == null) {
+        secondMap = new Map<string, KeyHandler>();
+        globalChordMap.set(prefix, secondMap);
+    }
+    if (secondMap.has(second)) {
+        console.warn(`keybinding conflict: chord "${prefix} ${second}" bound to multiple actions (last wins: ${actionId})`);
+    }
+    secondMap.set(second, handler);
+}
+
 function buildGlobalKeyMap() {
     globalKeyMap.clear();
     globalChordMap.clear();
@@ -787,10 +853,7 @@ function buildGlobalKeyMap() {
     for (const action of getGlobalActions()) {
         const binding = action.id in overrides ? overrides[action.id] : action.defaultBinding;
         for (const key of normalizeBinding(binding)) {
-            if (globalKeyMap.has(key)) {
-                console.warn(`keybinding conflict: "${key}" bound to multiple actions (last wins: ${action.id})`);
-            }
-            globalKeyMap.set(key, action.handler);
+            registerBinding(key, action.handler, action.id);
         }
     }
     // Escape is fundamental (modal/search dismissal), not user-overridable.
@@ -805,31 +868,14 @@ function buildGlobalKeyMap() {
         return false;
     });
     const allKeys = Array.from(globalKeyMap.keys());
+    // chord prefixes and their second keys must also be forwarded by web views
+    for (const [prefix, secondMap] of globalChordMap.entries()) {
+        allKeys.push(prefix);
+        allKeys.push(...secondMap.keys());
+    }
     // special case keys, handled by web view
     allKeys.push("Cmd:l", "Cmd:r", "Cmd:ArrowRight", "Cmd:ArrowLeft", "Cmd:o");
     getApi().registerGlobalWebviewKeys(allKeys);
-
-    const splitBlockKeys = new Map<string, KeyHandler>();
-    splitBlockKeys.set("ArrowUp", () => {
-        handleSplitVertical("before");
-        return true;
-    });
-    splitBlockKeys.set("ArrowDown", () => {
-        handleSplitVertical("after");
-        return true;
-    });
-    splitBlockKeys.set("ArrowLeft", () => {
-        handleSplitHorizontal("before");
-        return true;
-    });
-    splitBlockKeys.set("ArrowRight", () => {
-        handleSplitHorizontal("after");
-        return true;
-    });
-    const splitChordBinding = "app:splitchord" in overrides ? overrides["app:splitchord"] : "Ctrl:Shift:s";
-    for (const chordKey of normalizeBinding(splitChordBinding)) {
-        globalChordMap.set(chordKey, splitBlockKeys);
-    }
 }
 
 let keybindingConfigSubInstalled = false;

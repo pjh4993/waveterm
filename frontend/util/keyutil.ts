@@ -187,13 +187,18 @@ function isInputEvent(event: WaveKeyboardEvent): boolean {
 
 function checkKeyPressed(event: WaveKeyboardEvent, keyDescription: string): boolean {
     let keyPress = parseKeyDescription(keyDescription);
+    // A shifted symbol character (e.g. "%" or "\"") already encodes Shift in the
+    // produced character, so don't separately require the Shift modifier to match.
+    // Letters/digits keep strict Shift matching (e.g. Cmd:z vs Cmd:Shift:z).
+    const descKeyIsSymbol =
+        keyPress.keyType == KeyTypeKey && keyPress.key.length == 1 && !/[a-zA-Z0-9]/.test(keyPress.key);
     if (notMod(keyPress.mods.Option, event.option)) {
         return false;
     }
     if (notMod(keyPress.mods.Cmd, event.cmd)) {
         return false;
     }
-    if (notMod(keyPress.mods.Shift, event.shift)) {
+    if (!descKeyIsSymbol && notMod(keyPress.mods.Shift, event.shift)) {
         return false;
     }
     if (notMod(keyPress.mods.Ctrl, event.control)) {

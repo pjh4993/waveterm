@@ -73,6 +73,27 @@ action entirely. Key descriptors are modifiers joined by `:` followed by the key
 `Ctrl:Shift:ArrowUp`, `F2`. Modifiers are `Cmd`, `Ctrl`, `Shift`, `Alt`, `Option`, `Meta` (order does not
 matter). Physical-code keys are written as `c{Code}`, e.g. `Ctrl:Shift:c{Digit1}`.
 
+#### Prefix chords (tmux-style)
+
+A binding may also be a two-key **chord**: a prefix combo and a second key separated by a space, e.g.
+`"Ctrl:b c"`. Pressing the prefix arms chord mode (you have 2 seconds to press the second key). Multiple
+actions can share a prefix, which makes it easy to build a [tmux](https://github.com/tmux/tmux)-style
+layout under a single `Ctrl-b` prefix:
+
+```json
+{
+    "app:newtab": "Ctrl:b c",
+    "app:magnifyblock": "Ctrl:b z",
+    "app:renametab": "Ctrl:b ,",
+    "app:focusblockleft": "Ctrl:b h",
+    "app:focusblockright": "Ctrl:b l",
+    "app:splitblockright": "Ctrl:b ArrowRight"
+}
+```
+
+Note: a chord prefix swallows that key combo from the focused block (just like tmux's prefix), so choose a
+prefix you don't need to type otherwise.
+
 :::info
 Only the **global** keybindings listed above are customizable today. Block-specific keybindings (File
 Preview, Web, Terminal, etc.) are not yet remappable. The <Kbd k="Escape"/> key is reserved.
@@ -88,7 +109,10 @@ Preview, Web, Terminal, etc.) are not yet remappable. The <Kbd k="Escape"/> key 
 | `app:closetab`                                | <Kbd k="Cmd:Shift:w"/>                                 | Close the current tab                 |
 | `app:splitright`                              | <Kbd k="Cmd:d"/>                                       | Split right                           |
 | `app:splitdown`                               | <Kbd k="Cmd:Shift:d"/>                                 | Split down                            |
-| `app:splitchord`                              | <Kbd k="Ctrl:Shift:s"/>                                | Directional split chord prefix        |
+| `app:splitblockup`                            | <KbdChord karr={["Ctrl:Shift:s", "ArrowUp"]}/>        | Split above (chord)                   |
+| `app:splitblockdown`                          | <KbdChord karr={["Ctrl:Shift:s", "ArrowDown"]}/>      | Split below (chord)                   |
+| `app:splitblockleft`                          | <KbdChord karr={["Ctrl:Shift:s", "ArrowLeft"]}/>      | Split left (chord)                    |
+| `app:splitblockright`                         | <KbdChord karr={["Ctrl:Shift:s", "ArrowRight"]}/>     | Split right (chord)                   |
 | `app:magnifyblock`                            | <Kbd k="Cmd:m"/>                                       | Magnify / un-magnify the block        |
 | `app:focusblock`                              | <Kbd k="Cmd:i"/>                                       | Refocus the current block             |
 | `app:focusblockup`                            | <Kbd k="Ctrl:Shift:ArrowUp"/> / <Kbd k="Ctrl:Shift:k"/>    | Focus block up                    |
