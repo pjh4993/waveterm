@@ -1190,6 +1190,7 @@ declare global {
         "term:bellindicator"?: boolean;
         "term:osc52"?: string;
         "term:durable"?: boolean;
+        "term:dynamictitle"?: boolean;
         "web:zoom"?: number;
         "web:hidenav"?: boolean;
         "web:partition"?: string;
@@ -1417,6 +1418,7 @@ declare global {
         "term:transparency"?: number;
         "term:allowbracketedpaste"?: boolean;
         "term:shiftenternewline"?: boolean;
+        "term:dynamictitle"?: boolean;
         "term:macoptionismeta"?: boolean;
         "term:cursor"?: string;
         "term:cursorblink"?: boolean;
@@ -1589,6 +1591,7 @@ declare global {
         "debug:panictype"?: string;
         "block:view"?: string;
         "block:controller"?: string;
+        "block:subblock"?: boolean;
         "ai:backendtype"?: string;
         "ai:local"?: boolean;
         "wsh:cmd"?: string;

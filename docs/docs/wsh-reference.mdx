@@ -322,6 +322,53 @@ The `--pid` flag is not supported on Windows.
 
 ---
 
+## claude
+
+Helpers for the Claude Code integration. See the [Claude Code Integration](/claude-code) guide for the full setup.
+
+### claude install-hooks
+
+Idempotently merge Wave's Claude Code panel-title hooks into your Claude Code settings. This adds `SessionStart` / `UserPromptSubmit` hooks that set the block's panel title to the session name, and a `SessionEnd` hook that clears it. A timestamped backup of the settings file is written before any change, and your existing hooks are left untouched.
+
+```sh
+wsh claude install-hooks
+```
+
+Flags:
+
+- `--settings <path>` - path to the Claude Code settings file (default: `~/.claude/settings.json`)
+- `--dry-run` - print the resulting settings without writing
+- `--uninstall` - remove Wave's title hooks instead of adding them
+
+Examples:
+
+```sh
+# Install the title hooks (safe to re-run; idempotent)
+wsh claude install-hooks
+
+# Preview the change without writing
+wsh claude install-hooks --dry-run
+
+# Remove the hooks Wave added
+wsh claude install-hooks --uninstall
+```
+
+### claude title
+
+Set the current block's panel title (`frame:text`) from a Claude Code hook payload read on stdin. This is wired up automatically by `claude install-hooks`; you normally won't run it by hand. The title is derived in order: the session title, then the most recent `aiTitle` in the transcript (Claude's own summary), then the most recent prompt, then the working-directory name.
+
+```sh
+wsh claude title
+```
+
+Flags:
+
+- `--clear` - clear the panel title (used by the `SessionEnd` hook)
+- `--prefix <str>` - string prepended to the derived title (default: `✳ `)
+- `-b, --block <blockid>` - target block (default: current block)
+
+---
+
 ## run
 
 The `run` command creates a new terminal command block and executes a specified command within it. The command can be provided either as arguments after `--` or using the `-c` flag. Unless the `-x` or `-X` flags are passed, commands can be re-executed by pressing `Enter` once the command has finished running.

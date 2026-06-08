@@ -106,6 +106,46 @@ When Claude Code uses the `AskUserQuestion` tool, it's paused and waiting for yo
 
 `PreToolUse` hooks can match any tool by name, so you can add badges for other tools as well — for example, to get a signal whenever Claude runs a shell command (`Bash`) or edits a file (`Edit`). Any tool name Claude Code supports can be used as a matcher.
 
+## Showing the session name as the panel title <VersionBadge version="v0.15" />
+
+Badges tell you *something happened* in a tab. A panel title tells you *what that tab is* — which is especially useful when you keep several Claude Code sessions open at once. Wave can show the running process in each terminal block's header automatically (`vim`, `npm`, `Claude Code`, …); this is on by default and controlled by the [`term:dynamictitle`](/config) setting. For Claude Code, you can go one step further and surface the actual *session name* instead of the generic "Claude Code" label.
+
+Wave detects that Claude Code is running, but it has no way to know your session's name on its own — so a hook supplies it. Wave ships a `wsh claude` command that handles this for you.
+
+### Install the hooks
+
+Run this once:
+
+```sh
+wsh claude install-hooks
+```
+
+This merges three hooks into your `~/.claude/settings.json` (alongside any hooks you already have, including the badge hooks above):
+
+- **`SessionStart`** and **`UserPromptSubmit`** run `wsh claude title`, which sets the block's `frame:text` to the session name. `frame:text` overrides the automatic process label, and `UserPromptSubmit` keeps it fresh as the conversation evolves.
+- **`SessionEnd`** runs `wsh claude title --clear`, which removes `frame:text` so the panel reverts to the default title.
+
+A timestamped backup of your settings file is written before any change, and the command is idempotent — re-running it does nothing if the hooks are already present. Restart any running Claude Code sessions for the hooks to take effect.
+
+Preview the change first with `wsh claude install-hooks --dry-run`, or undo it later with `wsh claude install-hooks --uninstall`.
+
+### How the title is chosen
+
+`wsh claude title` reads the Claude Code hook payload on stdin and derives a short title in this order:
+
+1. The explicit **session title** (set via `/resume` or `claude -n <name>`).
+2. The most recent **`aiTitle`** in the session transcript — Claude Code's own auto-generated summary (e.g. *"Review GitHub Actions CI failure"*). This is the usual source. It's only generated after the first exchange, so until then it falls back to the next item.
+3. The most recent **user prompt** in the transcript.
+4. The **working-directory name**.
+
+:::info
+The title is stored on the block (`frame:text`), so it survives tab switches and works across splits. If you ever want to pin a manual title that the automatic label won't override, set it yourself: `wsh setmeta -b this frame:text="My Title"`.
+:::
+
+:::warning
+`frame:text` is persistent block metadata. The `SessionEnd` hook clears it on a normal exit, but if Claude Code is killed abruptly the last title can linger until the next command sets or clears it.
+:::
+
 ## Choosing your own icons and colors
 
 Icon names are [Font Awesome](https://fontawesome.com/icons) icon names without the `fa-` prefix. Colors are any valid CSS color — hex values, named colors, or anything else CSS accepts.
