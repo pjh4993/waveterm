@@ -868,10 +868,12 @@ function buildGlobalKeyMap() {
         return false;
     });
     const allKeys = Array.from(globalKeyMap.keys());
-    // chord prefixes and their second keys must also be forwarded by web views
-    for (const [prefix, secondMap] of globalChordMap.entries()) {
+    // Only chord prefixes are forwarded by web views — NOT the second keys. The
+    // second keys are bare characters (e.g. "j") that must reach the focused web
+    // page during normal typing. Once a prefix arms a chord, the main process
+    // captures the next key via keyboardChordMode (see emain webview before-input).
+    for (const prefix of globalChordMap.keys()) {
         allKeys.push(prefix);
-        allKeys.push(...secondMap.keys());
     }
     // special case keys, handled by web view
     allKeys.push("Cmd:l", "Cmd:r", "Cmd:ArrowRight", "Cmd:ArrowLeft", "Cmd:o");
