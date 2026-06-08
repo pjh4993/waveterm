@@ -4,6 +4,7 @@
 import { handleWaveAIContextMenu } from "@/app/aipanel/aipanel-contextmenu";
 import { useAtomValue } from "jotai";
 import { memo } from "react";
+import { AIProviderDropdown } from "./aiproviderdropdown";
 import { WaveAIModel } from "./waveai-model";
 
 export const AIPanelHeader = memo(() => {
@@ -24,10 +25,7 @@ export const AIPanelHeader = memo(() => {
             className="py-2 pl-3 pr-1 @xs:p-2 @xs:pl-4 border-b border-gray-600 flex items-center justify-between min-w-0"
             onContextMenu={handleContextMenu}
         >
-            <h2 className="text-white text-sm @xs:text-lg font-semibold flex items-center gap-2 flex-shrink-0 whitespace-nowrap">
-                <i className="fa fa-sparkles text-accent"></i>
-                Wave AI
-            </h2>
+            <AIProviderDropdown />
 
             <div className="flex items-center flex-shrink-0 whitespace-nowrap">
                 {!inBuilder && (
