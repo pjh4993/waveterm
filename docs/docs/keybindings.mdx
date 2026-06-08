@@ -53,6 +53,60 @@ Chords are shown with a + between the keys. You have 2 seconds to hit the 2nd ch
 | <Kbd k="Cmd:Shift:r"/>                            | Refresh the UI                                                                                                                                         |
 | <Kbd k="Ctrl:Shift:i"/>                           | Toggle terminal multi-input mode                                                                                                                       |
 
+## Customizing Global Keybindings
+
+The global keybindings above can be remapped. Create a `keybindings.json` file in your Wave config
+directory (`~/.config/waveterm/keybindings.json` on macOS/Linux, `%LOCALAPPDATA%\\waveterm\\keybindings.json`
+on Windows) that maps **action ids** to the key(s) you want. You only need to list the actions you want
+to change — everything else keeps its default. Changes apply live, no restart required.
+
+```json
+{
+    "app:newblock": "Cmd:Shift:n",
+    "app:newtab": ["Cmd:t", "Cmd:Shift:t"],
+    "app:togglemultiinput": "none"
+}
+```
+
+A value may be a single key descriptor string or an array of them. Use `"none"` (or `""`) to disable an
+action entirely. Key descriptors are modifiers joined by `:` followed by the key, e.g. `Cmd:Shift:n`,
+`Ctrl:Shift:ArrowUp`, `F2`. Modifiers are `Cmd`, `Ctrl`, `Shift`, `Alt`, `Option`, `Meta` (order does not
+matter). Physical-code keys are written as `c{Code}`, e.g. `Ctrl:Shift:c{Digit1}`.
+
+:::info
+Only the **global** keybindings listed above are customizable today. Block-specific keybindings (File
+Preview, Web, Terminal, etc.) are not yet remappable. The <Kbd k="Escape"/> key is reserved.
+:::
+
+### Action ids
+
+| Action id                                     | Default                                                | Function                              |
+| --------------------------------------------- | ------------------------------------------------------ | ------------------------------------- |
+| `app:newtab`                                  | <Kbd k="Cmd:t"/>                                       | Open a new tab                        |
+| `app:newblock`                                | <Kbd k="Cmd:n"/>                                       | Open a new block                      |
+| `app:closeblock`                              | <Kbd k="Cmd:w"/>                                       | Close the current block               |
+| `app:closetab`                                | <Kbd k="Cmd:Shift:w"/>                                 | Close the current tab                 |
+| `app:splitright`                              | <Kbd k="Cmd:d"/>                                       | Split right                           |
+| `app:splitdown`                               | <Kbd k="Cmd:Shift:d"/>                                 | Split down                            |
+| `app:splitchord`                              | <Kbd k="Ctrl:Shift:s"/>                                | Directional split chord prefix        |
+| `app:magnifyblock`                            | <Kbd k="Cmd:m"/>                                       | Magnify / un-magnify the block        |
+| `app:focusblock`                              | <Kbd k="Cmd:i"/>                                       | Refocus the current block             |
+| `app:focusblockup`                            | <Kbd k="Ctrl:Shift:ArrowUp"/> / <Kbd k="Ctrl:Shift:k"/>    | Focus block up                    |
+| `app:focusblockdown`                          | <Kbd k="Ctrl:Shift:ArrowDown"/> / <Kbd k="Ctrl:Shift:j"/>  | Focus block down                  |
+| `app:focusblockleft`                          | <Kbd k="Ctrl:Shift:ArrowLeft"/> / <Kbd k="Ctrl:Shift:h"/>  | Focus block left                  |
+| `app:focusblockright`                         | <Kbd k="Ctrl:Shift:ArrowRight"/> / <Kbd k="Ctrl:Shift:l"/> | Focus block right                 |
+| `app:nexttab`                                 | <Kbd k="Cmd:]"/> / <Kbd k="Shift:Cmd:]"/>              | Switch tab right                      |
+| `app:prevtab`                                 | <Kbd k="Cmd:["/> / <Kbd k="Shift:Cmd:["/>             | Switch tab left                       |
+| `app:renametab`                               | <Kbd k="F2"/>                                          | Rename the current tab                |
+| `app:connectiondropdown`                      | <Kbd k="Cmd:g"/>                                       | Open the connection switcher          |
+| `app:togglemultiinput`                        | <Kbd k="Ctrl:Shift:i"/>                                | Toggle terminal multi-input           |
+| `app:focusai`                                 | <Kbd k="Ctrl:Shift:0" windows="Alt:0"/>               | Focus WaveAI input                    |
+| `app:search`                                  | <Kbd k="Cmd:f"/>                                       | Search in the current block           |
+| `app:toggleaipanel`                           | <Kbd k="Cmd:Shift:a"/>                                 | Toggle the WaveAI panel               |
+| `app:replacewithlauncher`                     | <Kbd k="Ctrl:Shift:x"/>                                | Replace the block with a launcher     |
+| `app:switchtab-1` … `app:switchtab-9`         | <Kbd k="Cmd:1-9"/>                                     | Switch to tab N                       |
+| `app:switchblock-1` … `app:switchblock-9`     | <Kbd k="Ctrl:Shift:1-9"/>                              | Switch to block N                     |
+
 ## File Preview Keybindings
 
 | Key                                       | Function                                                                                           |

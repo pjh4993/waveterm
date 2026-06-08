@@ -26,6 +26,7 @@ import (
 const SettingsFile = "settings.json"
 const ConnectionsFile = "connections.json"
 const ProfilesFile = "profiles.json"
+const KeybindingsFile = "keybindings.json"
 
 var configWriteLock sync.Mutex
 
@@ -377,6 +378,7 @@ type FullConfigType struct {
 	Connections    map[string]ConnKeywords         `json:"connections"`
 	Bookmarks      map[string]WebBookmark          `json:"bookmarks"`
 	WaveAIModes    map[string]AIModeConfigType     `json:"waveai"`
+	Keybindings    map[string]any                  `json:"keybindings"`
 	ConfigErrors   []ConfigError                   `json:"configerrors" configfile:"-"`
 	Version        string                          `json:"version" configfile:"-"`
 	BuildTime      string                          `json:"buildtime" configfile:"-"`
