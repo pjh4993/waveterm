@@ -101,6 +101,15 @@
         "waveai:defaultmode": {
           "type": "string"
         },
+        "aipanel:provider": {
+          "type": "string",
+          "enum": [
+            "wave",
+            "claude",
+            "codex",
+            "gemini"
+          ]
+        },
         "term:*": {
           "type": "boolean"
         },

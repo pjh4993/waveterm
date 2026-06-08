@@ -1406,6 +1406,7 @@ declare global {
         "ai:fixedfontsize"?: number;
         "waveai:showcloudmodes"?: boolean;
         "waveai:defaultmode"?: string;
+        "aipanel:provider"?: string;
         "term:*"?: boolean;
         "term:fontsize"?: number;
         "term:fontfamily"?: string;
