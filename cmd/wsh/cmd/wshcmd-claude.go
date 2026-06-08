@@ -18,7 +18,7 @@ import (
 	"github.com/wavetermdev/waveterm/pkg/wshrpc/wshclient"
 )
 
-const ClaudeTitlePrefix = "✳ "
+const ClaudeTitlePrefix = "✨ "
 const ClaudeTitleMaxLen = 60
 
 var claudeCmd = &cobra.Command{
