@@ -415,6 +415,11 @@ export class TermViewModel implements ViewModel {
         if (!enabled) {
             return null;
         }
+        // termRef.current is null on the first viewText eval (the header mounts before the
+        // terminal's useEffect attaches termWrap), so the shell-integration atoms below can't
+        // register as deps yet. Depend on the model-level shellProcStatus, which flips to
+        // "running" after termRef attaches, to force a recompute that then subscribes to them.
+        get(this.shellProcStatus);
         if (!this.termRef.current?.shellIntegrationStatusAtom) {
             return null;
         }
