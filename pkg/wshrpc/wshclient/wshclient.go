@@ -676,6 +676,12 @@ func RecordTEventCommand(w *wshutil.WshRpc, data telemetrydata.TEvent, opts *wsh
 	return err
 }
 
+// command "remoteclaudesessions", wshserver.RemoteClaudeSessionsCommand
+func RemoteClaudeSessionsCommand(w *wshutil.WshRpc, data wshrpc.CommandRemoteClaudeSessionsData, opts *wshrpc.RpcOpts) (*wshrpc.ClaudeSessionsResponse, error) {
+	resp, err := sendRpcRequestCallHelper[*wshrpc.ClaudeSessionsResponse](w, "remoteclaudesessions", data, opts)
+	return resp, err
+}
+
 // command "remotedisconnectfromjobmanager", wshserver.RemoteDisconnectFromJobManagerCommand
 func RemoteDisconnectFromJobManagerCommand(w *wshutil.WshRpc, data wshrpc.CommandRemoteDisconnectFromJobManagerData, opts *wshrpc.RpcOpts) error {
 	_, err := sendRpcRequestCallHelper[any](w, "remotedisconnectfromjobmanager", data, opts)

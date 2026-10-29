@@ -107,7 +107,8 @@
             "wave",
             "claude",
             "codex",
-            "gemini"
+            "gemini",
+            "sessions"
           ]
         },
         "term:*": {

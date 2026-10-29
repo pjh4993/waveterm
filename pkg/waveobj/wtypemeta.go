@@ -63,6 +63,9 @@ type MetaTSType struct {
 	CmdInitScriptPwsh string            `json:"cmd:initscript.pwsh,omitempty"`
 	CmdInitScriptFish string            `json:"cmd:initscript.fish,omitempty"`
 
+	// set on terminal blocks opened from the Claude sessions panel
+	ClaudeSessionId string `json:"claude:sessionid,omitempty"`
+
 	// AI options match settings
 	AiClear      bool    `json:"ai:*,omitempty"`
 	AiPresetKey  string  `json:"ai:preset,omitempty"`
@@ -102,8 +105,8 @@ type MetaTSType struct {
 	BgActiveBorderColor string  `json:"bg:activebordercolor,omitempty"` // frame:activebordercolor
 
 	// for workspace
-	LayoutVTabBarWidth      int  `json:"layout:vtabbarwidth,omitempty"`
-	LayoutWidgetsVisible    *bool `json:"layout:widgetsvisible,omitempty"`
+	LayoutVTabBarWidth   int   `json:"layout:vtabbarwidth,omitempty"`
+	LayoutWidgetsVisible *bool `json:"layout:widgetsvisible,omitempty"`
 
 	// for tabs+waveai
 	WaveAiPanelOpen     bool   `json:"waveai:panelopen,omitempty"`

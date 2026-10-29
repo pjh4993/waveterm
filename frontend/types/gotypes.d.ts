@@ -211,6 +211,37 @@ declare global {
         secretbindingscomplete: boolean;
     };
 
+    // wshrpc.ClaudeProfileSessions
+    type ClaudeProfileSessions = {
+        profile: string;
+        configdir: string;
+        isdefault?: boolean;
+        agentserror?: string;
+        sessions: ClaudeSessionInfo[];
+    };
+
+    // wshrpc.ClaudeSessionInfo
+    type ClaudeSessionInfo = {
+        sessionid: string;
+        cwd?: string;
+        title?: string;
+        lastprompt?: string;
+        modts: number;
+        size: number;
+        runkind?: string;
+        agentid?: string;
+        runstate?: string;
+    };
+
+    // wshrpc.ClaudeSessionsResponse
+    type ClaudeSessionsResponse = {
+        version: number;
+        hostname: string;
+        homedir: string;
+        profiles: ClaudeProfileSessions[];
+        ts: number;
+    };
+
     // waveobj.Client
     type Client = WaveObj & {
         windowids: string[];
@@ -526,6 +557,11 @@ declare global {
         data64: string;
         notfound?: boolean;
         modts?: number;
+    };
+
+    // wshrpc.CommandRemoteClaudeSessionsData
+    type CommandRemoteClaudeSessionsData = {
+        limit?: number;
     };
 
     // wshrpc.CommandRemoteDisconnectFromJobManagerData
@@ -1133,6 +1169,7 @@ declare global {
         "cmd:initscript.zsh"?: string;
         "cmd:initscript.pwsh"?: string;
         "cmd:initscript.fish"?: string;
+        "claude:sessionid"?: string;
         "ai:*"?: boolean;
         "ai:preset"?: string;
         "ai:apitype"?: string;

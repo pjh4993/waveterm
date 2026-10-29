@@ -26,9 +26,10 @@ import { AIPanelInput } from "./aipanelinput";
 import { AIPanelMessages } from "./aipanelmessages";
 import { AIRateLimitStrip } from "./airatelimitstrip";
 import { WaveUIMessage } from "./aitypes";
-import { AIWebviewPanel } from "./aiwebviewpanel";
 import { AIWebProviders } from "./aiwebproviders";
+import { AIWebviewPanel } from "./aiwebviewpanel";
 import { BYOKAnnouncement } from "./byokannouncement";
+import { ClaudeSessionsPanel } from "./claudesessionspanel";
 import { TelemetryRequiredMessage } from "./telemetryrequired";
 import { WaveAIModel } from "./waveai-model";
 
@@ -630,7 +631,9 @@ const AIPanelComponent = ({ roundTopLeft }: AIPanelComponentProps) => {
     const webProvider = AIWebProviders[provider];
     return (
         <ErrorBoundary>
-            {webProvider ? (
+            {provider == "sessions" ? (
+                <ClaudeSessionsPanel roundTopLeft={roundTopLeft} />
+            ) : webProvider ? (
                 <AIWebviewPanel key={webProvider.key} roundTopLeft={roundTopLeft} provider={webProvider} />
             ) : (
                 <AIPanelComponentInner roundTopLeft={roundTopLeft} />

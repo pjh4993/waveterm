@@ -91,7 +91,7 @@ type SettingsType struct {
 	WaveAiShowCloudModes bool   `json:"waveai:showcloudmodes,omitempty"`
 	WaveAiDefaultMode    string `json:"waveai:defaultmode,omitempty"`
 
-	AIPanelProvider string `json:"aipanel:provider,omitempty" jsonschema:"enum=wave,enum=claude,enum=codex,enum=gemini"`
+	AIPanelProvider string `json:"aipanel:provider,omitempty" jsonschema:"enum=wave,enum=claude,enum=codex,enum=gemini,enum=sessions"`
 
 	TermClear               bool     `json:"term:*,omitempty"`
 	TermFontSize            float64  `json:"term:fontsize,omitempty"`

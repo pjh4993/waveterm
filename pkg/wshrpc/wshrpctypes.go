@@ -129,6 +129,7 @@ type WshRpcInterface interface {
 	BadgeWatchPidCommand(ctx context.Context, data CommandBadgeWatchPidData) error
 	RemoteProcessListCommand(ctx context.Context, data CommandRemoteProcessListData) (*ProcessListResponse, error)
 	RemoteProcessSignalCommand(ctx context.Context, data CommandRemoteProcessSignalData) error
+	RemoteClaudeSessionsCommand(ctx context.Context, data CommandRemoteClaudeSessionsData) (*ClaudeSessionsResponse, error)
 
 	// emain
 	WebSelectorCommand(ctx context.Context, data CommandWebSelectorData) ([]string, error)
@@ -340,7 +341,6 @@ type CommandEventReadHistoryData struct {
 	Scope    string `json:"scope"`
 	MaxItems int    `json:"maxitems"`
 }
-
 
 type CpuDataRequest struct {
 	Id    string `json:"id"`
@@ -924,4 +924,36 @@ type CommandRemoteProcessListData struct {
 type CommandRemoteProcessSignalData struct {
 	Pid    int32  `json:"pid"`
 	Signal string `json:"signal"`
+}
+
+type CommandRemoteClaudeSessionsData struct {
+	Limit int `json:"limit,omitempty"`
+}
+
+type ClaudeSessionInfo struct {
+	SessionId  string `json:"sessionid"`
+	Cwd        string `json:"cwd,omitempty"`
+	Title      string `json:"title,omitempty"`
+	LastPrompt string `json:"lastprompt,omitempty"`
+	ModTs      int64  `json:"modts"`
+	Size       int64  `json:"size"`
+	RunKind    string `json:"runkind,omitempty"`
+	AgentId    string `json:"agentid,omitempty"`
+	RunState   string `json:"runstate,omitempty"`
+}
+
+type ClaudeProfileSessions struct {
+	Profile     string              `json:"profile"`
+	ConfigDir   string              `json:"configdir"`
+	IsDefault   bool                `json:"isdefault,omitempty"`
+	AgentsError string              `json:"agentserror,omitempty"`
+	Sessions    []ClaudeSessionInfo `json:"sessions"`
+}
+
+type ClaudeSessionsResponse struct {
+	Version  int                     `json:"version"`
+	Hostname string                  `json:"hostname"`
+	HomeDir  string                  `json:"homedir"`
+	Profiles []ClaudeProfileSessions `json:"profiles"`
+	Ts       int64                   `json:"ts"`
 }

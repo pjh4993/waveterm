@@ -57,5 +57,6 @@ export type AIPanelProviderOption = {
 
 export const AIPanelProviderOptions: AIPanelProviderOption[] = [
     { key: "wave", label: "Wave AI", icon: "fa-sparkles" },
+    { key: "sessions", label: "Claude Sessions", icon: "fa-list" },
     ...Object.values(AIWebProviders).map((p) => ({ key: p.key, label: p.label, icon: p.icon })),
 ];
