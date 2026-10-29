@@ -10,11 +10,16 @@ import path from "path";
 import { WaveDevVarName, WaveDevViteVarName } from "../frontend/util/isdev";
 import * as keyutil from "../frontend/util/keyutil";
 
+// WAVETERM_INSTANCE (e.g. "alpha") runs a fully separate install side by side: its own data/config dirs
+// and its own Electron userData, which is also what requestSingleInstanceLock() is keyed on.
+const WaveInstanceVarName = "WAVETERM_INSTANCE";
+const waveInstance = (process.env[WaveInstanceVarName] ?? "").toLowerCase().replace(/[^a-z0-9-]/g, "");
+
 // This is a little trick to ensure that Electron puts all its runtime data into a subdirectory to avoid conflicts with our own data.
 // On macOS, it will store to ~/Library/Application \Support/waveterm/electron
 // On Linux, it will store to ~/.config/waveterm/electron
 // On Windows, it will store to %LOCALAPPDATA%/waveterm/electron
-app.setName("waveterm/electron");
+app.setName(waveInstance ? `waveterm-${waveInstance}/electron` : "waveterm/electron");
 
 const isDev = !app.isPackaged;
 const isDevVite = isDev && process.env.ELECTRON_RENDERER_URL;
@@ -27,12 +32,12 @@ if (isDevVite) {
 }
 
 const waveDirNamePrefix = "waveterm";
-const waveDirNameSuffix = isDev ? "dev" : "";
+const waveDirNameSuffix = isDev ? "dev" : waveInstance;
 const waveDirName = `${waveDirNamePrefix}${waveDirNameSuffix ? `-${waveDirNameSuffix}` : ""}`;
 
 const paths = envPaths("waveterm", { suffix: waveDirNameSuffix });
 
-app.setName(isDev ? "Wave (Dev)" : "Wave");
+app.setName(isDev ? "Wave (Dev)" : waveInstance ? `Wave (${waveInstance})` : "Wave");
 const unamePlatform = process.platform;
 const unameArch: string = process.arch;
 keyutil.setKeyUtilPlatform(unamePlatform);
